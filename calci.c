@@ -23,6 +23,7 @@ char get_func(char);
 void DispError(int);
 void disp_num(int);
 void dval(double);
+void ftoa(float n, char *res, int afterpoint);
 
  
 //*******************
@@ -50,6 +51,8 @@ sbit C4   = P1^7;     //Column4
 sbit E    = P3^6;     //E pin for LCD
 sbit RS   = P3^7;     //RS pin for LCD
  
+ char res[20];
+ float result;
 // ***********************************************************
 // Main program
 //
@@ -61,6 +64,7 @@ int main(void)
    char func = '+';              //Function to be performed among two numbers
    int num2 = 0;                 //Second number
    char a[20];
+	
 	int i=0,j,k;
    cct_init();                   //Make input and output pins as required
    lcdinit();                    //Initilize LCD
@@ -112,12 +116,12 @@ int main(void)
 		}*/
 	delay(35000);
 	switch(op){
-		case '+': disp_num(num1+num2); break;
-					 case '-': disp_num(num1-num2); break;
-					 case 'x': disp_num(num1*num2); break;
-					 case '/': disp_num(num1/num2); break;
+		case '+': result=(num1+num2); break;
+					 case '-': result=(num1-num2); break;
+					 case 'x': result=(num1*num2); break;
+					 case '/': result=(num1/num2); break;
 	}
-	
+	ftoa(result, res, 4);
 	if(get_key()=='C'){ReturnHome();}
 	
 	
@@ -306,34 +310,135 @@ void disp_num(int numb)            //displays number on LCD
  
 	UnitDigit = numb - TenthDigit*10;
  
-	writedata(UnitDigit+0x30);	  // Make Char of UnitDigit and then display it on LCD*/
+	writedata(UnitDigit+0x30);	  // Make Char of UnitDigit and then display it on LCD
 }
-void dval(double numb){
+
+
+
+// reverses a string 'str' of length 'len'
+void reverse(char *str, int len)
+{
+    int i=0, j=len-1, temp;
+    while (i<j)
+    {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++; j--;
+    }
+}
+ 
+ // Converts a given integer x to string str[].  d is the number
+ // of digits required in output. If d is more than the number
+ // of digits in x, then 0s are added at the beginning.
+int intToStr(int x, char str[], int d)
+{
+    int i = 0;
+    while (x)
+    {
+        str[i++] = (x%10) + '0';
+        x = x/10;
+    }
+ 
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d)
+        str[i++] = '0';
+ 
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+ 
+// Converts a floating point number to string.
+void ftoa(float n, char *res, int afterpoint)
+{
+    // Extract integer part
+    int ipart = (int)n;
+ 
+    // Extract floating part
+    float fpart = n - (float)ipart;
+ 
+    // convert integer part to string
+    int i = intToStr(ipart, res, 0);
+ 
+    // check for display option after point
+    if (afterpoint != 0)
+    {
+        res[i] = '.';  // add dot
+ 
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter is needed
+        // to handle cases like 233.007
+        fpart = fpart * pow(10, afterpoint);
+ 
+        intToStr((int)fpart, res + i + 1, afterpoint);
+    }
+		for(i=0;i<strlen(res);i++){
+			writedata(res[i]);
+		}
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*void dval(double numb){
 	double a=numb;
 	int i;
     char buffer[16];
     itoa(a,buffer,10);
 	for(i=0;i<strlen(buffer);i++)
 }
-
-
-
-
-/*void dispres(double numb){
-	char c[16];
-	int i=0,j;
-	double d=numb;
-	while(d!=0){
-		int s;
-		s=d%10;
-		c[i]=s;
-		d=d/10;
-		i++;
+void disp_num(float num)            //displays number on LCD
+{	
+	unsigned char UnitDigit  = 0;  //It will contain unit digit of numb
+	unsigned char TenthDigit = 0;  //It will contain 10th position digit of numb
+	unsigned char decimal = 0;
+	int j;
+	int numb;
+	j=(int)(num*10);
+	
+	numb=(int)num;
+	if(numb<0)
+	{
+		numb = -1*numb;  // Make number positive
+		writedata('-');	 // Display a negative sign on LCD
 	}
-	for(j=0;j<i;j++){
-		writedata(c[j]);
-	}
+
+	TenthDigit = (numb/10);	          // Findout Tenth Digit
+
+	if( TenthDigit != 0)	          // If it is zero, then don't display
+	writedata(TenthDigit+0x30);	  // Make Char of TenthDigit and then display it on LCD
+
+	UnitDigit = numb - TenthDigit*10;
+
+	writedata(UnitDigit+0x30);	  // Make Char of UnitDigit and then display it on LCD
+	writedata('.');
+	
+	decimal=(j%10)+0x30;
+	writedata(decimal);
+	delay(2000000);
 }
+
+
+
 
 
 /*while(1){
