@@ -62,7 +62,8 @@ int main(void)
 		char op;
    int num1 = 0;                 //First number
    char func = '+';              //Function to be performed among two numbers
-   int num2 = 0;                 //Second number
+   int num2 = 0;
+float n1,n2;	//Second number
    char a[20];
 	
 	int i=0,j,k;
@@ -114,12 +115,15 @@ int main(void)
 			writedata(a[j]);
 			delay(1500);
 		}*/
+n1=(float)num1;
+	n2=(float)num2;
 	delay(35000);
+	
 	switch(op){
-		case '+': result=(num1+num2); break;
-					 case '-': result=(num1-num2); break;
-					 case 'x': result=(num1*num2); break;
-					 case '/': result=(num1/num2); break;
+		case '+': result=(float)(num1+num2); break;
+					 case '-': result=(float)(num1-num2); break;
+					 case 'x': result=(float)(num1*num2); break;
+					 case '/': result=n1/n2; break;
 	}
 	ftoa(result, res, 4);
 	if(get_key()=='C'){ReturnHome();}
@@ -353,23 +357,28 @@ int intToStr(int x, char str[], int d)
 // Converts a floating point number to string.
 void ftoa(float n, char *res, int afterpoint)
 {
+	
+	int ipart,i;
+	float fpart;
+	//n=78.98;
+	if(n<0){
+		writedata('-');
+		n=fabs(n);
+	}
     // Extract integer part
-    int ipart = (int)n;
+    ipart = (int)n;
  
     // Extract floating part
-    float fpart = n - (float)ipart;
+    fpart = n - (float)ipart;
  
-    // convert integer part to string
-    int i = intToStr(ipart, res, 0);
+     i = intToStr(ipart, res, 0);
  
-    // check for display option after point
+    
     if (afterpoint != 0)
     {
         res[i] = '.';  // add dot
  
-        // Get the value of fraction part upto given no.
-        // of points after dot. The third parameter is needed
-        // to handle cases like 233.007
+        
         fpart = fpart * pow(10, afterpoint);
  
         intToStr((int)fpart, res + i + 1, afterpoint);
@@ -399,85 +408,3 @@ void ftoa(float n, char *res, int afterpoint)
 
 
 
-/*void dval(double numb){
-	double a=numb;
-	int i;
-    char buffer[16];
-    itoa(a,buffer,10);
-	for(i=0;i<strlen(buffer);i++)
-}
-void disp_num(float num)            //displays number on LCD
-{	
-	unsigned char UnitDigit  = 0;  //It will contain unit digit of numb
-	unsigned char TenthDigit = 0;  //It will contain 10th position digit of numb
-	unsigned char decimal = 0;
-	int j;
-	int numb;
-	j=(int)(num*10);
-	
-	numb=(int)num;
-	if(numb<0)
-	{
-		numb = -1*numb;  // Make number positive
-		writedata('-');	 // Display a negative sign on LCD
-	}
-
-	TenthDigit = (numb/10);	          // Findout Tenth Digit
-
-	if( TenthDigit != 0)	          // If it is zero, then don't display
-	writedata(TenthDigit+0x30);	  // Make Char of TenthDigit and then display it on LCD
-
-	UnitDigit = numb - TenthDigit*10;
-
-	writedata(UnitDigit+0x30);	  // Make Char of UnitDigit and then display it on LCD
-	writedata('.');
-	
-	decimal=(j%10)+0x30;
-	writedata(decimal);
-	delay(2000000);
-}
-
-
-
-
-
-/*while(1){
-		//get array
-		key=get_key();
-		writecmd(0x01);
-		writedata(key);
-		a[j]=key;
-		if(a[j]=='='){
-		
-			break;
-		}
-		j++;
-		
-	}
-	
-	for(k=0;k<j;k++){
-		if(a[k]=='+' || a[k]=='-' || a[k]=='*' || a[k]=='/'){
-			int x=0;
-			while(x<k){
-				num1=num1+a[x]*10;
-				x++;
-			}
-			x=k+1;
-			while(x<j){
-				num2=num2+a[x]*10;
-				x++;
-			}
-			op=a[k];
-		}
-	}
-	if(key == '=')           //if = is pressed then proceed
-				 {
-					 switch(op)         //switch on function
-					 {
-					 case '+': disp_num(num1+num2); break;
-					 case '-': disp_num(num1-num2); break;
-					 case 'x': disp_num(num1*num2); break;
-					 case '/': disp_num(num1/num2); break;
-					 }
-				 }
-			*/
